@@ -1,0 +1,110 @@
+Design Spec: tpt-text (Layer 1)
+1. Mission & Scope
+Mission: To provide a unified, pure-Rust, zero-FFI text shaping, layout, and font management substrate. It serves as the foundational text engine for the entire TPT ecosystem, enabling complex text rendering in PDFs (tpt-doc), CAD annotations (tpt-vertex), and UI (tpt-pwa).
+Scope:
+In Scope: Font loading/parsing, script itemization, bidirectional (Bidi) text resolution, glyph shaping, UAX#14 line breaking, paragraph layout, cursor hit-testing, and font fallback chains.
+Out of Scope: Glyph rasterization to bitmaps (handled by fontdue/swash downstream), hardware-specific text rendering (WebGPU/Vulkan), and rich-text document storage (handled by tpt-doc/tpt-model).
+2. Core Constraints & Architecture
+Zero C-FFI: We cannot use HarfBuzz, FreeType, CoreText, or DirectWrite. We must orchestrate pure-Rust alternatives.
+no_std + alloc: The core math, shaping, and layout logic must be no_std compatible, relying only on alloc for buffers.
+Deterministic: Given the same font data, text, and constraints, the layout output must be byte-for-byte identical across all platforms (crucial for reproducible PDFs and CAD drawings).
+The Dependency Map (Pure Rust Only)
+Instead of reinventing the wheel, tpt-text acts as the orchestration layer over mature pure-Rust primitives:
+Shaping: rustybuzz (Pure Rust port of HarfBuzz).
+Font Parsing/Loading: swash (Advanced font parsing, variable fonts) and fontdue (Metrics/rasterization).
+System Fonts: fontdb (Pure Rust system font database).
+Unicode Algorithms: unicode-bidi, unicode-linebreak, unicode-script.
+3. Core Modules & API Design
+Module A: tpt_text::font (Font Registry & Fallback)
+Manages font discovery, loading, and the critical fallback chain.
+FontRegistry: A thread-safe cache of loaded fonts. Supports loading from memory (embedded fonts for PDFs) or querying the OS (via fontdb).
+FallbackResolver: When a glyph is missing (e.g., an Emoji in a Latin font, or Arabic in a standard UI font), this module walks a prioritized fallback chain to find the correct font.
+Key Trait:
+
+pub trait FontProvider {
+    fn load(&self, query: &FontQuery) -> Option<Arc<FontFace>>;
+    fn fallback_chain(&self, script: Script, base_family: &str) -> Vec<Arc<FontFace>>;
+}
+
+Module B: tpt_text::shape (Itemization & Shaping)
+Transforms raw Unicode text into positioned glyphs.
+Itemization: Breaks a paragraph of text into "runs" based on Script, Direction (LTR/RTL), and TextStyle (bold, italic, size).
+Shaping: Passes each run through rustybuzz to resolve ligatures, contextual alternates, and complex script positioning (e.g., Arabic joining, Devanagari reordering).
+Key Struct:
+
+pub struct ShapedGlyph {
+    pub glyph_id: u32,
+    pub x_advance: f32,
+    pub y_advance: f32,
+    pub x_offset: f32,
+    pub y_offset: f32,
+    pub cluster_index: usize, // Maps back to original byte index
+}
+
+pub struct ShapedRun {
+    pub font: Arc<FontFace>,
+    pub style: TextStyle,
+    pub glyphs: Vec<ShapedGlyph>,
+    pub direction: Direction,
+}
+
+Module C: tpt_text::layout (Line Breaking & Paragraph Layout)
+The high-level engine that takes styled text and a bounding box, and outputs a fully laid-out paragraph.
+Bidi Resolution: Applies the Unicode Bidirectional Algorithm to reorder runs visually.
+Line Breaking: Implements UAX #14. Calculates break opportunities and breaks text into lines without exceeding the max_width. Handles hyphenation hooks.
+Alignment & Justification: Applies left, right, center, and full justification (adjusting word and letter spacing).
+Key Struct:
+
+pub struct ParagraphLayout {
+    pub lines: Vec<LayoutLine>,
+    pub total_height: f32,
+    pub max_width: f32,
+}
+
+pub struct LayoutLine {
+    pub runs: Vec<ShapedRun>, // Visually ordered
+    pub baseline_y: f32,
+    pub height: f32,
+}
+
+Module D: tpt_text::hit_test (Cursor & Selection)
+Crucial for UI (tpt-pwa) and interactive PDFs (tpt-doc).
+Point-to-Text: Given an (x, y) coordinate, returns the nearest byte index and caret position.
+Text-to-Point: Given a byte index, returns the (x, y) coordinate for the caret.
+Selection Ranges: Calculates the visual bounding boxes for a selected range of text, correctly handling multi-line and Bidi text.
+4. The Processing Pipeline
+To ensure performance and clarity, the layout process follows a strict pipeline:
+Input: Raw text + TextStyle spans + max_width.
+Itemize: Split into logical runs (Script/Style/Direction).
+Bidi Resolve: Determine visual ordering of runs.
+Shape: Convert logical runs into ShapedRuns (glyph IDs and advances).
+Break: Walk through shaped runs, accumulating width. When max_width is exceeded, break at the last valid UAX#14 opportunity.
+Align: Apply paragraph alignment to the broken lines.
+Output: ParagraphLayout.
+5. Integration with the TPT Ecosystem
+tpt-doc (PDF/OOXML): Uses tpt-text to calculate exact glyph positions for PDF content streams. Because tpt-text is deterministic, a PDF generated on Windows will have the exact same text layout as one generated on Linux.
+tpt-vertex (CAD): Uses the hit-testing module to allow users to click and edit dimension annotations. Uses the layout engine to ensure text fits inside title blocks.
+tpt-pwa (Web UI): The WASM-compiled version of tpt-text will power the text input and rendering for the web frontend, ensuring the browser UI matches the backend document rendering perfectly.
+tpt-color (Future): tpt-text will accept an abstract ColorId in its TextStyle, which tpt-color will resolve during the final rendering pass.
+6. Testing & Quality Strategy (Tying into tpt-testkit)
+Text layout is notoriously prone to edge-case bugs. We will leverage tpt-testkit for:
+Golden File Testing: Every complex layout scenario (Arabic LTR mixed with numbers, zero-width joiners, massive paragraphs) will generate a JSON golden file containing the exact ParagraphLayout tree.
+Fuzzing: A tpt-text-fuzz crate will feed random Unicode strings, random font subsets, and random max_width constraints into the layout engine to catch panics or infinite loops.
+Unicode Conformance: Automated tests against the official Unicode Bidi and LineBreak test suites.
+7. Roadmap & Milestones
+Phase 1: The Core Substrate (Weeks 1-3)
+Implement FontRegistry and FontProvider traits.
+Wrap rustybuzz for basic LTR shaping.
+Implement basic line breaking (no Bidi, no complex fallback).
+Phase 2: The Hard Stuff (Weeks 4-6)
+Implement full Unicode Bidi resolution.
+Implement the FallbackResolver (missing glyph handling).
+Implement UAX#14 line breaking with hyphenation hooks.
+Phase 3: Layout & Interaction (Weeks 7-9)
+Implement paragraph alignment and justification.
+Build the hit_test module (cursor positioning).
+Optimize for no_std + alloc (remove any accidental std dependencies).
+Phase 4: Ecosystem Integration (Weeks 10-12)
+Integrate with tpt-doc for PDF text rendering.
+Integrate with tpt-pwa for UI text input.
+Publish v1.0.0 to the internal TPT registry.

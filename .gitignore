@@ -1,0 +1,10 @@
+/target
+Cargo.lock.bak
+*.log
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+/crates/tpt-text-fuzz/target
+/crates/tpt-text-fuzz/corpus
+/crates/tpt-text-fuzz/artifacts
