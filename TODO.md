@@ -56,9 +56,10 @@ Decisions: no_std+alloc core (`std` feature for fontdb), fixed-point `Fx` public
 - [x] Benchmarks for shaping and layout of large paragraphs (`cargo bench -p tpt-text`)
 - [x] Docs and rustdoc examples (quick start and doctests in `lib.rs`)
 
-## Phase 4: Ecosystem integration (Weeks 10-12), blocked on external repos
-- [ ] tpt-doc: PDF glyph positioning integration
-- [ ] tpt-pwa: WASM text input and rendering
-- [ ] tpt-vertex: hit-testing and title-block fit
-- [ ] tpt-color: resolve `ColorId`
-- [ ] Publish v1.0.0 to internal TPT registry
+## Phase 4: Ecosystem integration — dropped
+Decision: other TPT repos will not depend on tpt-text. These items are not planned.
+- ~~tpt-doc: PDF glyph positioning integration~~
+- ~~tpt-pwa: WASM text input and rendering~~
+- ~~tpt-vertex: hit-testing and title-block fit~~
+- ~~tpt-color: resolve `ColorId`~~ (the repo is now `tpt-colour`; `ColorId` stays abstract in tpt-text)
+- ~~Publish v1.0.0 to internal TPT registry~~
