@@ -28,3 +28,7 @@ workspace = true
 [dev-dependencies]
 tpt-golden = { path = "../tpt-golden" }
 serde = { version = "1.0.229", features = ["derive"] }
+
+[[bench]]
+name = "layout"
+harness = false

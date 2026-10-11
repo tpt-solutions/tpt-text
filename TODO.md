@@ -4,7 +4,7 @@ Decisions: no_std+alloc core (`std` feature for fontdb), fixed-point `Fx` public
 
 ## Phase 0: Setup
 - [x] Cargo workspace: `tpt-text`, `tpt-text-fuzz`, `tpt-golden`
-- [ ] Pin toolchain (stable, MSRV 1.75), rustfmt/clippy config (pinned and configured; MSRV 1.75 not yet verified, only rustc 1.97 installed)
+- [x] Pin toolchain (stable, MSRV 1.75), rustfmt/clippy config (stable pinned; build and tests verified on 1.75.0)
 - [x] Features: `std` (default), `fontdb` (`tpt_text::system::SystemFonts`), `serde` (golden output)
 - [x] Verify no_std status of rustybuzz, ttf-parser, unicode-bidi, unicode-linebreak, unicode-script; record findings (`docs/dependency-audit.md`)
 - [x] CI-style script: test, clippy, `wasm32-unknown-unknown` no_std build (`scripts/ci.ps1`)
@@ -48,13 +48,13 @@ Decisions: no_std+alloc core (`std` feature for fontdb), fixed-point `Fx` public
 
 ## Testing and quality
 - [x] `tpt-golden` helper: JSON golden files with update mode
-- [ ] Golden scenarios: Arabic mixed with numbers (done); ZWJ/ZWNJ, emoji fallback, huge paragraphs asserted in `tests/scenarios.rs` but not yet golden files
-- [ ] Unicode Bidi conformance tests (BidiCharacterTest levels and reorder run; 1 known level mismatch. BidiTest.txt not wired)
-- [ ] Unicode LineBreak conformance tests (LineBreakTest runs; 1117 known failures because `unicode-linebreak` 0.1.5 implements Unicode 15, see `testdata/unicode/known-failures/`)
-- [ ] Cross-platform determinism check (Windows vs WASM output identical)
-- [ ] `tpt-text-fuzz`: random strings, font subsets, max_width; no panics or hangs (random strings and widths done; font subsets not yet)
-- [ ] Benchmarks for shaping and layout of large paragraphs
-- [ ] Docs and rustdoc examples
+- [x] Golden scenarios: Arabic with numbers, emoji with ZWJ/ZWNJ, long paragraph (golden files; also asserted in `tests/scenarios.rs`)
+- [x] Unicode Bidi conformance tests (BidiCharacterTest and BidiTest, levels and reorder: 0 failures; lines containing paragraph separators are skipped)
+- [ ] Unicode LineBreak conformance tests (LineBreakTest runs; 1117 known failures because `unicode-linebreak` 0.1.5 implements Unicode 15, see `testdata/unicode/known-failures/`; blocked on a newer crate)
+- [x] Cross-platform determinism check (native Windows digests equal digests from the WASM build under Node; `crates/tpt-wasm-check`, `scripts/wasm-digest.mjs`)
+- [x] `tpt-text-fuzz`: random strings, font subsets, options, widths, hit-tests; no panics or hangs (`TPT_FUZZ_ITERATIONS` for soak runs)
+- [x] Benchmarks for shaping and layout of large paragraphs (`cargo bench -p tpt-text`)
+- [x] Docs and rustdoc examples (quick start and doctests in `lib.rs`)
 
 ## Phase 4: Ecosystem integration (Weeks 10-12), blocked on external repos
 - [ ] tpt-doc: PDF glyph positioning integration

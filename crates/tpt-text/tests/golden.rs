@@ -120,3 +120,39 @@ fn mixed_bidi_fallback_justified() {
             .unwrap();
     check(golden_path("mixed_bidi_fallback"), &to_golden(&layout));
 }
+
+#[test]
+fn emoji_fallback_with_joiners() {
+    use tpt_text::{FallbackResolver, LayoutOptions};
+
+    let reg = registry();
+    reg.load_from_memory(
+        include_bytes!("fonts/NotoEmoji-Regular.ttf").to_vec(),
+        0,
+        "Noto Emoji",
+        400,
+        false,
+    )
+    .unwrap();
+    let resolver = FallbackResolver::new().with_defaults(&["Noto Emoji"]);
+    let options = LayoutOptions {
+        fallback: Some(&resolver),
+        ..LayoutOptions::default()
+    };
+    // Emoji, a ZWJ sequence, and a ZWNJ inside Arabic.
+    let text = "ok \u{1F600} family \u{1F468}\u{200D}\u{1F469} \u{0628}\u{200C}\u{062A} end";
+    let style = TextStyle::new("Noto Sans", Fx::from_int(14));
+    let layout =
+        tpt_text::layout_paragraph_with(&reg, text, &style, &[], Fx::from_int(300), &options)
+            .unwrap();
+    check(golden_path("emoji_joiners"), &to_golden(&layout));
+}
+
+#[test]
+fn long_paragraph_wrap() {
+    let reg = registry();
+    let style = TextStyle::new("Noto Sans", Fx::from_int(12));
+    let text = "lorem ipsum dolor sit amet consectetur ".repeat(40);
+    let layout = layout_paragraph(&reg, &text, &style, &[], Fx::from_int(360)).unwrap();
+    check(golden_path("long_paragraph"), &to_golden(&layout));
+}

@@ -13,6 +13,37 @@
 //! Bidi-aware itemization and shaping, caller-configured fallback, UAX #14
 //! breaking with hyphenation hooks, tab stops, alignment, justification,
 //! truncation, and hit-testing. Phase 4 integrations are pending.
+//!
+//! # Quick start
+//!
+//! ```no_run
+//! use tpt_text::{layout_paragraph, FontRegistry, Fx, TextStyle};
+//!
+//! let font = std::fs::read("NotoSans-Regular.ttf").expect("font file");
+//! let registry = FontRegistry::new();
+//! registry
+//!     .load_from_memory(font, 0, "Noto Sans", 400, false)
+//!     .expect("valid font");
+//!
+//! let style = TextStyle::new("Noto Sans", Fx::from_int(12));
+//! let layout = layout_paragraph(&registry, "Hello, world", &style, &[], Fx::from_int(200))
+//!     .expect("font is registered");
+//! for line in &layout.lines {
+//!     println!("line at y={} holds {} runs", line.top, line.runs.len());
+//! }
+//! ```
+//!
+//! Invalid font bytes are rejected rather than panicking:
+//!
+//! ```
+//! use tpt_text::{FontError, FontRegistry};
+//!
+//! let registry = FontRegistry::new();
+//! let err = registry
+//!     .load_from_memory(vec![0; 16], 0, "Broken", 400, false)
+//!     .unwrap_err();
+//! assert_eq!(err, FontError::InvalidFontData);
+//! ```
 
 #![cfg_attr(not(feature = "std"), no_std)]
 #![warn(missing_docs)]

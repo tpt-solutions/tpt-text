@@ -16,5 +16,7 @@ Invoke-Step 'test (fontdb feature)' { cargo test -p tpt-text --features fontdb }
 Invoke-Step 'example consumer' { cargo build -p tpt-text --example layout_demo }
 Invoke-Step 'no_std build (thumbv7em-none-eabihf)' { cargo build -p tpt-text --no-default-features --target thumbv7em-none-eabihf }
 Invoke-Step 'no_std build (wasm32-unknown-unknown)' { cargo build -p tpt-text --no-default-features --target wasm32-unknown-unknown }
+# The native digest test compares against digests recorded from this module under Node.
+Invoke-Step 'determinism module (wasm32-unknown-unknown)' { cargo build -p tpt-wasm-check --target wasm32-unknown-unknown --release }
 
 Write-Host 'All checks passed.' -ForegroundColor Green

@@ -5,6 +5,7 @@
 //! bit-identical on every platform (no float rounding differences between
 //! x86, ARM and WASM).
 
+use core::fmt;
 use core::ops::{Add, AddAssign, Div, Mul, Neg, Sub, SubAssign};
 
 const FRAC_BITS: u32 = 16;
@@ -97,6 +98,13 @@ impl Fx {
     /// Returns `true` if the value is strictly negative.
     pub fn is_negative(self) -> bool {
         self.0 < 0
+    }
+}
+
+impl fmt::Display for Fx {
+    /// Formats as a decimal number, for humans. Not used by the layout output.
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt::Display::fmt(&self.to_f32(), f)
     }
 }
 

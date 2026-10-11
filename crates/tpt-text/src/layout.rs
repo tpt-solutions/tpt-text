@@ -143,7 +143,8 @@ pub fn layout_paragraph_with(
     let bidi = BidiInfo::new(text, para_level);
     let styles = style_table(base, spans);
 
-    let items = itemize(text, spans, &bidi.levels);
+    let levels = resolved_levels(&bidi);
+    let items = itemize(text, spans, &levels);
     let (fonts, segments) = resolve_segments(provider, options.fallback, text, &items, &styles)?;
 
     let runs: Vec<ShapedRun> = segments
@@ -248,6 +249,20 @@ fn load_face(provider: &dyn FontProvider, style: &TextStyle) -> Result<Arc<FontF
             italic: style.italic,
         })
         .ok_or_else(|| LayoutError::MissingFont(style.family.clone()))
+}
+
+/// Per-byte levels after UAX #9 rule L1, which resets segment separators
+/// (tabs) and trailing whitespace to the paragraph level. Each paragraph is
+/// treated as one line, so whitespace at the end of a wrapped line is not
+/// reset here.
+/// Resolved per-byte Bidi levels for `bidi`, with rule L1 applied.
+pub fn resolved_levels(bidi: &BidiInfo<'_>) -> Vec<Level> {
+    let mut levels = bidi.levels.clone();
+    for para in &bidi.paragraphs {
+        let reset = bidi.reordered_levels(para, para.range.clone());
+        levels[para.range.clone()].copy_from_slice(&reset[para.range.clone()]);
+    }
+    levels
 }
 
 fn direction_of(level: Level) -> Direction {

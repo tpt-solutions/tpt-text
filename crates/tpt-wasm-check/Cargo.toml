@@ -1,0 +1,26 @@
+[package]
+name = "tpt-wasm-check"
+description = "Cross-platform determinism check: the same layouts must hash identically natively and under WebAssembly"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+tpt-text = { path = "../tpt-text" }
+
+[lints.rust]
+unsafe_code = "allow"
+missing_docs = "warn"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+unwrap_used = "warn"
+
+[dev-dependencies]
+serde_json = "1.0.152"

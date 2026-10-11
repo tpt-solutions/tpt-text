@@ -10,59 +10,12 @@
 
 #![allow(clippy::unwrap_used)]
 
-use std::collections::BTreeSet;
-use std::fs;
-use std::path::PathBuf;
+mod support;
+
+use support::{check_against_known, data};
 
 use unicode_bidi::{BidiInfo, Level};
 use unicode_linebreak::{linebreaks, BreakOpportunity};
-
-fn unicode_dir() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../testdata/unicode")
-}
-
-fn data(name: &str) -> String {
-    let path = unicode_dir().join(name);
-    fs::read_to_string(&path).unwrap_or_else(|e| panic!("reading {}: {e}", path.display()))
-}
-
-/// Compares this run's failures with the recorded known failures.
-///
-/// `failures` holds `(1-based line number, description)`.
-fn check_against_known(name: &str, total: usize, failures: &[(usize, String)]) {
-    let known_path = unicode_dir().join("known-failures").join(name);
-    let update = std::env::var("TPT_CONFORMANCE_UPDATE").is_ok_and(|v| v == "1");
-    if update {
-        fs::create_dir_all(known_path.parent().unwrap()).unwrap();
-        let mut body = String::new();
-        for (line, _) in failures {
-            body.push_str(&format!("{line}\n"));
-        }
-        fs::write(&known_path, body).unwrap();
-        println!("{name}: recorded {} known failures", failures.len());
-        return;
-    }
-
-    let known: BTreeSet<usize> = fs::read_to_string(&known_path)
-        .unwrap_or_default()
-        .lines()
-        .filter_map(|l| l.trim().parse().ok())
-        .collect();
-
-    println!("{name}: {} of {total} cases fail", failures.len());
-    let new: Vec<&(usize, String)> = failures
-        .iter()
-        .filter(|(line, _)| !known.contains(line))
-        .collect();
-    for (line, msg) in new.iter().take(20) {
-        println!("  NEW line {line}: {msg}");
-    }
-    assert!(
-        new.is_empty(),
-        "{} conformance failures not in {name} known list",
-        new.len()
-    );
-}
 
 #[test]
 fn uax14_line_break_cases() {
@@ -183,9 +136,10 @@ fn uax9_levels_and_reorder() {
                 bidi.paragraphs[0].level.number()
             ));
         }
+        let resolved = tpt_text::layout::resolved_levels(&bidi);
         for (i, (byte, _)) in text.char_indices().enumerate() {
             if let Some(Some(e)) = expected_levels.get(i) {
-                let got = bidi.levels[byte].number();
+                let got = resolved[byte].number();
                 if got != *e {
                     problem = Some(format!("char {i} level {got} != {e}"));
                     break;
