@@ -1,0 +1,212 @@
+{
+  "lines": [
+    {
+      "runs": [
+        {
+          "font": [
+            "Noto Sans Arabic",
+            0,
+            400,
+            false
+          ],
+          "style": {
+            "family": "Noto Sans Arabic",
+            "weight": 400,
+            "italic": false,
+            "size": 917504,
+            "letter_spacing": 0,
+            "features": [],
+            "color": 0,
+            "variations": []
+          },
+          "glyphs": [
+            {
+              "glyph_id": 316,
+              "x_advance": 0,
+              "y_advance": 0,
+              "x_offset": 355074,
+              "y_offset": -21103,
+              "cluster_index": 14
+            },
+            {
+              "glyph_id": 15,
+              "x_advance": 1002832,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 14
+            },
+            {
+              "glyph_id": 287,
+              "x_advance": 0,
+              "y_advance": 0,
+              "x_offset": 4588,
+              "y_offset": -54133,
+              "cluster_index": 12
+            },
+            {
+              "glyph_id": 21,
+              "x_advance": 274334,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 12
+            },
+            {
+              "glyph_id": 3,
+              "x_advance": 238551,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 11
+            }
+          ],
+          "direction": "RightToLeft"
+        },
+        {
+          "font": [
+            "Noto Sans Arabic",
+            0,
+            400,
+            false
+          ],
+          "style": {
+            "family": "Noto Sans Arabic",
+            "weight": 400,
+            "italic": false,
+            "size": 917504,
+            "letter_spacing": 0,
+            "features": [],
+            "color": 0,
+            "variations": []
+          },
+          "glyphs": [
+            {
+              "glyph_id": 120,
+              "x_advance": 524812,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 7
+            },
+            {
+              "glyph_id": 118,
+              "x_advance": 524812,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 8
+            },
+            {
+              "glyph_id": 120,
+              "x_advance": 524812,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 9
+            },
+            {
+              "glyph_id": 124,
+              "x_advance": 524812,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 10
+            }
+          ],
+          "direction": "LeftToRight"
+        },
+        {
+          "font": [
+            "Noto Sans Arabic",
+            0,
+            400,
+            false
+          ],
+          "style": {
+            "family": "Noto Sans Arabic",
+            "weight": 400,
+            "italic": false,
+            "size": 917504,
+            "letter_spacing": 0,
+            "features": [],
+            "color": 0,
+            "variations": []
+          },
+          "glyphs": [
+            {
+              "glyph_id": 3,
+              "x_advance": 238551,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 6
+            },
+            {
+              "glyph_id": 316,
+              "x_advance": 0,
+              "y_advance": 0,
+              "x_offset": 355074,
+              "y_offset": -21103,
+              "cluster_index": 4
+            },
+            {
+              "glyph_id": 15,
+              "x_advance": 1002832,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 4
+            },
+            {
+              "glyph_id": 287,
+              "x_advance": 0,
+              "y_advance": 0,
+              "x_offset": 49545,
+              "y_offset": -165151,
+              "cluster_index": 2
+            },
+            {
+              "glyph_id": 18,
+              "x_advance": 342229,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 2
+            },
+            {
+              "glyph_id": 316,
+              "x_advance": 0,
+              "y_advance": 0,
+              "x_offset": 28443,
+              "y_offset": -2753,
+              "cluster_index": 0
+            },
+            {
+              "glyph_id": 19,
+              "x_advance": 246809,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 0
+            }
+          ],
+          "direction": "RightToLeft"
+        }
+      ],
+      "top": 0,
+      "baseline_y": 1260650,
+      "height": 1937768,
+      "x_offset": 14215414,
+      "text_range": {
+        "start": 0,
+        "end": 16
+      }
+    }
+  ],
+  "total_height": 1937768,
+  "max_width": 19660800,
+  "text": "بتب 2026 تب",
+  "direction": "RightToLeft",
+  "missing_glyphs": []
+}

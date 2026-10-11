@@ -1,0 +1,16 @@
+[package]
+name = "tpt-text-snapshot"
+description = "Text snapshots of tpt-text layouts for downstream tests (update with TPT_SNAPSHOT_UPDATE=1)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+publish = false
+
+[dependencies]
+tpt-text = { path = "../tpt-text" }
+
+[lints]
+workspace = true

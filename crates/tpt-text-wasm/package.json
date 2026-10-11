@@ -1,0 +1,14 @@
+{
+  "name": "tpt-text-wasm",
+  "version": "0.1.0",
+  "private": true,
+  "description": "WebAssembly build of tpt-text. Build with `wasm-pack build crates/tpt-text-wasm --target web`.",
+  "license": "MIT OR Apache-2.0",
+  "files": ["pkg/"],
+  "main": "pkg/tpt_text_wasm.js",
+  "types": "pkg/tpt_text_wasm.d.ts",
+  "scripts": {
+    "build": "wasm-pack build . --target web --release",
+    "serve": "python -m http.server 8080 --directory www"
+  }
+}

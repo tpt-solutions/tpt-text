@@ -1,0 +1,13 @@
+[package]
+name = "xtask"
+description = "Cross-platform build tasks for tpt-text: CI checks, benchmark comparison, wasm digests"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+publish = false
+
+[lints]
+workspace = true

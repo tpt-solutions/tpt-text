@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/tpt-text", "crates/tpt-text-golden", "crates/tpt-text-fuzz", "crates/tpt-text-wasm-check", "crates/tpt-text-linebreak", "crates/tpt-text-linebreak-gen"]
+members = ["xtask", "crates/tpt-text-wasm", "crates/tpt-text-cli", "crates/tpt-text", "crates/tpt-text-golden", "crates/tpt-text-snapshot", "crates/tpt-text-fuzz", "crates/tpt-text-wasm-check", "crates/tpt-text-linebreak", "crates/tpt-text-linebreak-gen"]
 
 [workspace.package]
 version = "0.1.0"

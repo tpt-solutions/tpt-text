@@ -87,18 +87,29 @@ fn variant(abbreviation: &str) -> &'static str {
         .unwrap_or_else(|| die(&format!("unknown line break class {abbreviation:?}")))
 }
 
+/// Parses a hexadecimal code point, rejecting values past the last Unicode code point.
 fn parse_hex(hex: &str) -> u32 {
-    u32::from_str_radix(hex.trim(), 16).unwrap_or_else(|_| die(&format!("bad code point {hex:?}")))
+    let cp = u32::from_str_radix(hex.trim(), 16)
+        .unwrap_or_else(|_| die(&format!("bad code point {hex:?}")));
+    if cp > MAX_CODE_POINT {
+        die(&format!("code point {hex:?} is past U+10FFFF"));
+    }
+    cp
 }
 
+/// Parses `XXXX` or `XXXX..YYYY`, which must be non-empty and in order.
 fn parse_range(field: &str) -> (u32, u32) {
-    match field.trim().split_once("..") {
+    let (first, last) = match field.trim().split_once("..") {
         Some((first, last)) => (parse_hex(first), parse_hex(last)),
         None => {
             let cp = parse_hex(field);
             (cp, cp)
         }
+    };
+    if first > last {
+        die(&format!("range {field:?} ends before it starts"));
     }
+    (first, last)
 }
 
 fn read(dir: &Path, name: &str) -> String {
@@ -154,6 +165,11 @@ fn apply_unicode_data(text: &str, flags: &mut [u8]) {
         } else {
             cp
         };
+        if first > cp {
+            die(&format!(
+                "range starting at {first:04X} ends before it starts"
+            ));
+        }
         let category_flags = match fields[2] {
             "Pi" => FLAG_PI,
             "Pf" => FLAG_PF,
@@ -239,4 +255,33 @@ fn runs<T: PartialEq + Copy>(values: &[T], render: impl Fn(T) -> String) -> Stri
         }
     }
     out
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parses_single_code_points_and_ranges() {
+        assert_eq!(parse_hex("0041"), 0x41);
+        assert_eq!(parse_range("0041"), (0x41, 0x41));
+        assert_eq!(parse_range("0041..005A"), (0x41, 0x5A));
+        assert_eq!(parse_range(" 10FFFF "), (0x10FFFF, 0x10FFFF));
+    }
+
+    #[test]
+    fn maps_class_abbreviations_to_variants() {
+        assert_eq!(variant("AL"), "Alphabetic");
+        assert_eq!(variant("BK"), "Mandatory");
+    }
+
+    #[test]
+    fn fills_defaults_and_then_explicit_lines() {
+        let ucd = "# @missing: 0000..0043; XX\n0041..0042 ; AL # letters\n";
+        let mut table: Vec<&str> = vec![""; 0x44];
+        fill_from_ucd(ucd, &mut table);
+        assert_eq!(table[0x41], "AL");
+        assert_eq!(table[0x42], "AL");
+        assert_eq!(table[0x43], "XX");
+    }
 }

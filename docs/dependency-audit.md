@@ -8,7 +8,7 @@ Checked with `cargo build -p tpt-text --no-default-features` for
 | rustybuzz | 0.20.1 | Passes with `default-features = false` |
 | ttf-parser (via rustybuzz) | re-exported | Passes |
 | unicode-bidi | 0.3.18 | Passes |
-| tpt-text-linebreak (in-tree) | 0.1.0 | Not yet checked |
+| tpt-text-linebreak (in-tree) | 0.1.0 | Passes (built as part of `tpt-text` above) |
 | unicode-script | 0.5.8 | Passes |
 | spin | 0.12.3 | Passes (`rwlock` feature) |
 
@@ -16,7 +16,9 @@ Notes:
 
 - The crate root uses `#![cfg_attr(not(feature = "std"), no_std)]`. No `std`
   imports exist in `src/` outside tests.
-- The MSRV of 1.75 is not verified. Only rustc 1.97 is installed here.
+- The MSRV of 1.75 is verified locally with `cargo +1.75.0 build` and
+  `cargo +1.75.0 test` for `tpt-text` and `tpt-text-linebreak`. The CI MSRV job
+  has not run yet.
 - The Unicode crates may lag the Unicode 18.0.0 test data. Conformance tests
   will show any gaps.
 - Determinism is achieved by integer-only layout math (`Fx`). The only float

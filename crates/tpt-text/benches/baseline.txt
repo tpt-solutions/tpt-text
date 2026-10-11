@@ -1,0 +1,3 @@
+arabic 10k chars, 480px	9.916
+latin 10k chars, 480px	10.785
+latin 10k chars, no wrap	12.237

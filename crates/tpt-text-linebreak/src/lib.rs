@@ -162,12 +162,35 @@ pub enum BreakOpportunity {
 /// assert!(linebreaks("Hello world!").eq(vec![(6, Allowed), (12, Mandatory)]));
 /// ```
 pub fn linebreaks(text: &str) -> alloc::vec::IntoIter<(usize, BreakOpportunity)> {
+    let breaks: Vec<(usize, BreakOpportunity)> = linebreaks_explained(text)
+        .map(|b| (b.position, b.kind))
+        .collect();
+    breaks.into_iter()
+}
+
+/// A break opportunity together with the UAX #14 rule that decided it.
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub struct ExplainedBreak {
+    /// Byte index of the character that follows the break.
+    pub position: usize,
+    /// Whether the line must or may end here.
+    pub kind: BreakOpportunity,
+    /// Rule label such as `"LB18"`. `"LB31"` is the catch-all rule; `"LB3"` is end of text.
+    pub rule: &'static str,
+}
+
+/// Like [`linebreaks`], but also reports which rule decided each opportunity.
+pub fn linebreaks_explained(text: &str) -> alloc::vec::IntoIter<ExplainedBreak> {
     let units = rules::units(text);
-    let mut breaks: Vec<(usize, BreakOpportunity)> = Vec::new();
+    let mut breaks: Vec<ExplainedBreak> = Vec::new();
     for k in 0..=units.len() {
-        if let Some(kind) = rules::decide(&units, k) {
+        if let Some((kind, rule)) = rules::decide(&units, k) {
             let position = units.get(k).map_or(text.len(), |unit| unit.start);
-            breaks.push((position, kind));
+            breaks.push(ExplainedBreak {
+                position,
+                kind,
+                rule,
+            });
         }
     }
     breaks.into_iter()

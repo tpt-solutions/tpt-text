@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  # Runs `cargo xtask ci` on every platform. The determinism test in that
+  # task compares native digests with digests recorded from the WebAssembly
+  # build, so each runner also proves its output matches the recorded value.
+  check:
+    name: check (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+          targets: thumbv7em-none-eabihf, wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo xtask ci
+
+  # The minimum supported Rust version, for the library crates.
+  msrv:
+    name: MSRV 1.75
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.75.0
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build -p tpt-text -p tpt-text-linebreak
+      - run: cargo test -p tpt-text
+
+  # Short libFuzzer runs of each target. Longer soaks are run by hand.
+  fuzz:
+    name: fuzz smoke (${{ matrix.target }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [linebreak, font_bytes, layout_spans]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: crates/tpt-text-fuzz/fuzz
+      - run: cargo install cargo-fuzz --locked
+      - run: cargo fuzz run ${{ matrix.target }} -- -max_total_time=60
+        working-directory: crates/tpt-text-fuzz/fuzz
+
+  # Advisory and licence checks on the dependency graph.
+  deny:
+    name: cargo-deny
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          command: check

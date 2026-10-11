@@ -1,0 +1,204 @@
+{
+  "lines": [
+    {
+      "runs": [
+        {
+          "font": [
+            "Noto Sans",
+            0,
+            400,
+            false
+          ],
+          "style": {
+            "family": "Noto Sans",
+            "weight": 400,
+            "italic": false,
+            "size": 917504,
+            "letter_spacing": 0,
+            "features": [],
+            "color": 0,
+            "variations": []
+          },
+          "glyphs": [
+            {
+              "glyph_id": 73,
+              "x_advance": 315621,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 0
+            },
+            {
+              "glyph_id": 68,
+              "x_advance": 514720,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 1
+            },
+            {
+              "glyph_id": 80,
+              "x_advance": 857866,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 2
+            },
+            {
+              "glyph_id": 76,
+              "x_advance": 236716,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 3
+            },
+            {
+              "glyph_id": 79,
+              "x_advance": 236716,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 4
+            },
+            {
+              "glyph_id": 92,
+              "x_advance": 467927,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 5
+            },
+            {
+              "glyph_id": 3,
+              "x_advance": 238551,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 6
+            }
+          ],
+          "direction": "LeftToRight"
+        },
+        {
+          "font": [
+            "Noto Emoji",
+            0,
+            400,
+            false
+          ],
+          "style": {
+            "family": "Noto Sans",
+            "weight": 400,
+            "italic": false,
+            "size": 917504,
+            "letter_spacing": 0,
+            "features": [],
+            "color": 0,
+            "variations": []
+          },
+          "glyphs": [
+            {
+              "glyph_id": 1436,
+              "x_advance": 1164800,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 7
+            }
+          ],
+          "direction": "LeftToRight"
+        },
+        {
+          "font": [
+            "Noto Sans",
+            0,
+            400,
+            false
+          ],
+          "style": {
+            "family": "Noto Sans",
+            "weight": 400,
+            "italic": false,
+            "size": 917504,
+            "letter_spacing": 0,
+            "features": [],
+            "color": 0,
+            "variations": []
+          },
+          "glyphs": [
+            {
+              "glyph_id": 3,
+              "x_advance": 238551,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 18
+            },
+            {
+              "glyph_id": 79,
+              "x_advance": 236716,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 19
+            },
+            {
+              "glyph_id": 68,
+              "x_advance": 514720,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 20
+            },
+            {
+              "glyph_id": 88,
+              "x_advance": 567017,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 21
+            },
+            {
+              "glyph_id": 81,
+              "x_advance": 567017,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 22
+            },
+            {
+              "glyph_id": 70,
+              "x_advance": 440402,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 23
+            },
+            {
+              "glyph_id": 75,
+              "x_advance": 567017,
+              "y_advance": 0,
+              "x_offset": 0,
+              "y_offset": 0,
+              "cluster_index": 24
+            }
+          ],
+          "direction": "LeftToRight"
+        }
+      ],
+      "top": 0,
+      "baseline_y": 980812,
+      "height": 1249641,
+      "x_offset": 0,
+      "text_range": {
+        "start": 0,
+        "end": 25
+      }
+    }
+  ],
+  "total_height": 1249641,
+  "max_width": 17039360,
+  "text": "family 👩‍🚀 launch",
+  "direction": "LeftToRight",
+  "missing_glyphs": []
+}

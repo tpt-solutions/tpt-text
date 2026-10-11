@@ -66,10 +66,89 @@ fn random_font_subset(rng: &mut Lcg) -> (FontRegistry, Vec<&'static str>) {
     }
 }
 
-fn check_layout(layout: &ParagraphLayout, text: &str, rng: &mut Lcg) {
+/// Byte positions of the spaces and tabs that end a line, skipping hidden
+/// separators at the very end. `starts` holds every glyph cluster start.
+fn hanging_bytes(text: &str, starts: &[usize], range: std::ops::Range<usize>) -> Vec<usize> {
+    let mut out = Vec::new();
+    let mut end = range.end;
+    while let Some(c) = text[range.start..end].chars().next_back() {
+        let pos = end - c.len_utf8();
+        // A space only hangs if its cluster holds nothing after it, as the
+        // layout requires; otherwise it is merged with the next character.
+        let alone = end == text.len() || starts.binary_search(&end).is_ok();
+        match c {
+            ' ' | '\t' if alone => out.push(pos),
+            '\n' | '\r' | '\u{0B}' | '\u{0C}' | '\u{85}' | '\u{AD}' | '\u{2028}' | '\u{2029}'
+                if alone => {}
+            _ => break,
+        }
+        end = pos;
+    }
+    out
+}
+
+/// Checks the layout invariants. `unclipped` is true when no line was
+/// truncated, so the lines must cover the whole text and fit `max`.
+fn check_layout(layout: &ParagraphLayout, text: &str, rng: &mut Lcg, unclipped: bool, max: Fx) {
     // Line byte ranges must be ordered, and every position must be a boundary.
     for w in layout.lines.windows(2) {
         assert!(w[0].text_range.start <= w[1].text_range.start);
+        assert!(
+            w[0].text_range.end <= w[1].text_range.start,
+            "lines overlap"
+        );
+    }
+    if unclipped && !text.is_empty() {
+        assert_eq!(
+            layout.lines[0].text_range.start, 0,
+            "first line misses the text start"
+        );
+        assert_eq!(
+            layout.lines.last().unwrap().text_range.end,
+            text.len(),
+            "last line misses the text end"
+        );
+        for w in layout.lines.windows(2) {
+            assert_eq!(
+                w[0].text_range.end, w[1].text_range.start,
+                "gap between lines"
+            );
+        }
+    }
+    // Glyph cluster starts, so a space merged into a longer cluster is not whitespace.
+    let mut starts: Vec<usize> = layout
+        .lines
+        .iter()
+        .flat_map(|l| l.runs.iter())
+        .flat_map(|r| r.glyphs.iter().map(|g| g.cluster_index))
+        .collect();
+    starts.push(text.len());
+    starts.sort_unstable();
+    starts.dedup();
+    // A line of more than one glyph must fit, after its hanging whitespace.
+    for (i, line) in layout.lines.iter().enumerate() {
+        let glyphs: Vec<_> = line.runs.iter().flat_map(|r| r.glyphs.iter()).collect();
+        // Tabs and hidden separators change widths by position and can merge with
+        // neighbouring clusters; those lines are covered by the targeted tests.
+        let simple = !line_text_has_whitespace(&text[line.text_range.clone()]);
+        if glyphs.len() > 1 && unclipped && simple {
+            // Whitespace at the logical end hangs, whichever side it is drawn on.
+            let hanging = hanging_bytes(text, &starts, line.text_range.clone());
+            let width = glyphs
+                .iter()
+                .filter(|g| !hanging.contains(&g.cluster_index))
+                .fold(Fx::ZERO, |acc, g| acc + g.x_advance);
+            assert!(
+                width <= max,
+                "line {i} is wider than the paragraph width: text {:?} range {:?} width {} max {} glyphs {:?} hanging {:?}",
+                text,
+                line.text_range,
+                width.to_raw(),
+                max.to_raw(),
+                glyphs.iter().map(|g| (g.cluster_index, g.x_advance.to_raw())).collect::<Vec<_>>(),
+                hanging
+            );
+        }
     }
     for line in &layout.lines {
         assert!(line.text_range.end <= text.len());
@@ -125,7 +204,26 @@ fn random_layouts_do_not_panic() {
 
         let outcome = layout_paragraph_with(&reg, &text, &style, &[], width, &options);
         match outcome {
-            Ok(layout) => check_layout(&layout, &text, &mut rng),
+            Ok(layout) => {
+                // Relayout must reproduce the same positions.
+                let again =
+                    layout_paragraph_with(&reg, &text, &style, &[], width, &options).unwrap();
+                assert_eq!(
+                    layout.digest(),
+                    again.digest(),
+                    "iteration {i}: layout is not deterministic"
+                );
+                let unclipped = options.max_lines.is_none() && !options.ellipsis;
+                if !unclipped {
+                    check_layout(&layout, &text, &mut rng, false, width);
+                } else {
+                    eprintln!(
+                        "CASE family={family} width={} options={options:?}",
+                        width.to_raw()
+                    );
+                    check_layout(&layout, &text, &mut rng, true, width);
+                }
+            }
             Err(LayoutError::MissingFont(_)) => {
                 // Only possible if the chosen family was not registered.
                 assert!(
@@ -150,6 +248,24 @@ fn default_options_still_lay_out_every_registered_family() {
         let style = TextStyle::new("Noto Sans", Fx::from_int(12));
         let width = Fx::from_int(1 + rng.below(300) as i32);
         let layout = layout_paragraph(&reg, &text, &style, &[], width).unwrap();
-        check_layout(&layout, &text, &mut rng);
+        check_layout(&layout, &text, &mut rng, true, width);
     }
+}
+
+/// True if `text` contains whitespace or a character that is hidden when drawn.
+fn line_text_has_whitespace(text: &str) -> bool {
+    text.chars().any(|c| {
+        matches!(
+            c,
+            ' ' | '\t'
+                | '\n'
+                | '\r'
+                | '\u{0B}'
+                | '\u{0C}'
+                | '\u{85}'
+                | '\u{AD}'
+                | '\u{2028}'
+                | '\u{2029}'
+        )
+    })
 }

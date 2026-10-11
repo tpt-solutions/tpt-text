@@ -1,0 +1,37 @@
+[package]
+name = "tpt-text-cargo-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+tpt-text = { path = "../../tpt-text" }
+tpt-text-linebreak = { path = "../../tpt-text-linebreak" }
+
+[[bin]]
+name = "linebreak"
+path = "fuzz_targets/linebreak.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "font_bytes"
+path = "fuzz_targets/font_bytes.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "layout_spans"
+path = "fuzz_targets/layout_spans.rs"
+test = false
+doc = false
+bench = false
+
+[workspace]
+members = ["."]

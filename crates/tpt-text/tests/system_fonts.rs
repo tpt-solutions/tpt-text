@@ -33,3 +33,51 @@ fn resolved_face_is_cached_in_registry() {
         "second lookup should hit the registry cache"
     );
 }
+
+const LATIN: &[u8] = include_bytes!("fonts/NotoSans-Regular.ttf");
+const ARABIC: &[u8] = include_bytes!("fonts/NotoSansArabic-Regular.ttf");
+
+/// A database holding only the vendored test fonts, so these tests do not
+/// depend on what the machine has installed.
+fn vendored() -> SystemFonts {
+    let mut db = fontdb::Database::new();
+    db.load_font_data(LATIN.to_vec());
+    db.load_font_data(ARABIC.to_vec());
+    SystemFonts::from_database(db)
+}
+
+#[test]
+fn vendored_lookup_is_cached_per_query() {
+    let fonts = vendored();
+    let query = FontQuery::new("Noto Sans");
+    let a = fonts.load(&query).unwrap();
+    let b = fonts.load(&query).unwrap();
+    assert!(Arc::ptr_eq(&a, &b));
+}
+
+#[test]
+fn missing_weight_and_slant_fall_back_to_closest_face() {
+    let fonts = vendored();
+    // Only upright regular faces are installed, so bold italic gets the closest one.
+    let face = fonts
+        .load(&FontQuery {
+            family: "Noto Sans".into(),
+            weight: 700,
+            italic: true,
+        })
+        .unwrap();
+    assert_eq!(face.family(), "Noto Sans");
+    assert_eq!(face.weight(), 400);
+    assert!(!face.is_italic());
+}
+
+#[test]
+fn fallback_chain_resolves_system_families() {
+    let fonts = vendored();
+    fonts
+        .registry()
+        .set_fallback_chain(unicode_script::Script::Arabic, &["Noto Sans Arabic"]);
+    let chain = fonts.fallback_chain(unicode_script::Script::Arabic, "Noto Sans");
+    assert_eq!(chain.len(), 1);
+    assert_eq!(chain[0].family(), "Noto Sans Arabic");
+}

@@ -10,6 +10,7 @@ readme = "README.md"
 authors.workspace = true
 keywords = ["golden", "snapshot", "json", "testing", "regression"]
 categories = ["development-tools::testing"]
+publish = false
 
 [dependencies]
 serde = { version = "1.0.229", features = ["derive"] }

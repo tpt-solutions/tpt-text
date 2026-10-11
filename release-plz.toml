@@ -1,0 +1,24 @@
+# release-plz configuration. Release PRs are opened by .github/workflows/release-plz.yml.
+#
+# Publishing is turned off here. Publishing to crates.io is a separate decision,
+# made by hand, so it is not part of the automation yet.
+
+[workspace]
+publish = false
+changelog_update = true
+
+[[package]]
+name = "tpt-text-golden"
+publish = false
+
+[[package]]
+name = "tpt-text-snapshot"
+publish = false
+
+[[package]]
+name = "tpt-text-wasm-check"
+publish = false
+
+[[package]]
+name = "xtask"
+publish = false

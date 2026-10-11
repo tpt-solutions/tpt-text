@@ -66,6 +66,18 @@ fn line_width(layout: &ParagraphLayout, line: usize) -> Fx {
         .fold(Fx::ZERO, |acc, r| acc + r.width())
 }
 
+/// Width of a line without its trailing space, which hangs past the line end.
+fn visible_line_width(layout: &ParagraphLayout, line: usize) -> Fx {
+    let end = layout.lines[line].text_range.end;
+    let hanging = (end > 0 && layout.text.as_bytes()[end - 1] == b' ').then_some(end - 1);
+    layout.lines[line]
+        .runs
+        .iter()
+        .flat_map(|r| r.glyphs.iter())
+        .filter(|g| Some(g.cluster_index) != hanging)
+        .fold(Fx::ZERO, |acc, g| acc + g.x_advance)
+}
+
 #[test]
 fn fallback_uses_second_font_for_missing_glyph() {
     let reg = registry();
@@ -194,7 +206,11 @@ fn justify_fills_non_final_lines() {
     let layout = layout_paragraph_with(&reg, text, &style(), &[], width, &opts).unwrap();
     assert!(layout.lines.len() > 2);
     for i in 0..layout.lines.len() - 1 {
-        assert_eq!(line_width(&layout, i), width, "line {i} not justified");
+        assert_eq!(
+            visible_line_width(&layout, i),
+            width,
+            "line {i} not justified"
+        );
     }
     // The final line keeps its natural width.
     assert!(line_width(&layout, layout.lines.len() - 1) < width);

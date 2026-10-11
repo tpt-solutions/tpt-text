@@ -66,7 +66,7 @@ For alignment, fallback, tab stops, and truncation, pass a `LayoutOptions` to
 |-----------|---------|---------------------------------------------------------------|
 | `std`     | yes     | `std` types and the `std` build of the crate root             |
 | `fontdb`  | no      | `tpt_text::system::SystemFonts` (OS font discovery via `fontdb`) |
-| `serde`   | no      | Serialization of `Fx` (as an integer) and layout output for golden files |
+| `serde`   | no      | Serialization of `Fx` (as an integer). Layout types do not implement it yet |
 
 Build without default features for `no_std` targets:
 
@@ -121,8 +121,8 @@ projects is not planned. See [`CHANGELOG.md`](CHANGELOG.md) for release notes.
 
 ## Minimum supported Rust version
 
-1.75. The MSRV has not been verified in CI yet; only a recent stable toolchain
-is exercised.
+1.75. It is verified locally with `cargo +1.75.0 test`. The CI MSRV job has not
+run yet.
 
 ## License
 
@@ -137,4 +137,4 @@ Copyright (c) 2026 TPT Solutions.
 
 ## Contributing
 
-Issues only. Report bugs and request features at <https://github.com/tpt-solutions/tpt-text/issues>. Please do not open pull requests.
+Report bugs and request features at <https://github.com/tpt-solutions/tpt-text/issues>. Pull requests from automation (for example Dependabot) are welcome.

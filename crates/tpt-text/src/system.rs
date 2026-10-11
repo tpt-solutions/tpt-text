@@ -1,13 +1,14 @@
 //! OS font discovery through `fontdb`. Enabled by the `fontdb` feature.
 //!
 //! [`SystemFonts`] wraps a font database and a [`FontRegistry`]. Each face is
-//! read from the database once and cached in the registry, so later lookups
-//! return the same `Arc<FontFace>`.
+//! read from the database once per requested family and cached, so later
+//! lookups return the same `Arc<FontFace>`.
 
 use alloc::string::String;
 use alloc::sync::Arc;
 use alloc::vec::Vec;
 
+use spin::RwLock;
 use unicode_script::Script;
 
 use crate::font::{FontFace, FontProvider, FontQuery, FontRegistry};
@@ -16,6 +17,9 @@ use crate::font::{FontFace, FontProvider, FontQuery, FontRegistry};
 pub struct SystemFonts {
     db: fontdb::Database,
     registry: FontRegistry,
+    /// Faces already read from the database, keyed by database id and the
+    /// family name they were requested under.
+    cache: RwLock<Vec<(fontdb::ID, String, Arc<FontFace>)>>,
 }
 
 impl SystemFonts {
@@ -31,6 +35,7 @@ impl SystemFonts {
         SystemFonts {
             db,
             registry: FontRegistry::new(),
+            cache: RwLock::new(Vec::new()),
         }
     }
 
@@ -67,11 +72,21 @@ impl SystemFonts {
             stretch: fontdb::Stretch::Normal,
             style,
         })?;
-        let face_weight = self.db.face(id)?.weight.0;
-        let italic = matches!(style, fontdb::Style::Italic);
 
+        if let Some((_, _, face)) =
+            self.cache.read().iter().find(|(cached, family, _)| {
+                *cached == id && family.eq_ignore_ascii_case(&query.family)
+            })
+        {
+            return Some(Arc::clone(face));
+        }
+
+        let info = self.db.face(id)?;
+        let face_weight = info.weight.0;
+        let face_italic = matches!(info.style, fontdb::Style::Italic | fontdb::Style::Oblique);
         // Register under the requested family so the registry can match it.
-        self.db
+        let face = self
+            .db
             .with_face_data(id, |data, index| {
                 self.registry
                     .load_from_memory(
@@ -79,20 +94,36 @@ impl SystemFonts {
                         index,
                         query.family.as_str(),
                         face_weight,
-                        italic,
+                        face_italic,
                     )
                     .ok()
             })
-            .flatten()
+            .flatten()?;
+        self.cache
+            .write()
+            .push((id, query.family.clone(), Arc::clone(&face)));
+        Some(face)
     }
 }
 
 impl FontProvider for SystemFonts {
     fn load(&self, query: &FontQuery) -> Option<Arc<FontFace>> {
-        self.registry.load(query).or_else(|| self.resolve(query))
+        // A cached face only counts if its weight and slant match the request;
+        // otherwise ask the database for the closest real face.
+        if let Some(face) = self.registry.load(query) {
+            if face.weight() == query.weight && face.is_italic() == query.italic {
+                return Some(face);
+            }
+        }
+        self.resolve(query).or_else(|| self.registry.load(query))
     }
 
     fn fallback_chain(&self, script: Script, base_family: &str) -> Vec<Arc<FontFace>> {
-        self.registry.fallback_chain(script, base_family)
+        self.registry
+            .fallback_families(script)
+            .iter()
+            .filter(|name| !name.eq_ignore_ascii_case(base_family))
+            .filter_map(|name| self.load(&FontQuery::new(name.as_str())))
+            .collect()
     }
 }

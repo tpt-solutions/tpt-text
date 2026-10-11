@@ -1,0 +1,14 @@
+# Starter: draw tpt-text layouts with tiny-skia. Copy this directory out of the
+# repository and point the path dependency at your checkout of tpt-text.
+[package]
+name = "tpt-text-tiny-skia"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+tpt-text = { path = "../../crates/tpt-text" }
+tiny-skia = "0.12"
+
+# Keep this out of the tpt-text workspace.
+[workspace]

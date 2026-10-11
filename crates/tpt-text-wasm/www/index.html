@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>tpt-text browser demo</title>
+  <style>
+    :root { color-scheme: light dark; --gap: 16px; }
+    body { margin: 0; padding: var(--gap); font: 15px/1.4 system-ui, sans-serif; }
+    main { display: grid; gap: var(--gap); max-width: 900px; }
+    textarea, input { font: inherit; width: 100%; box-sizing: border-box; }
+    #preview { border: 1px solid #8884; overflow-x: auto; }
+    #preview svg { display: block; max-width: 100%; height: auto; }
+    .row { display: flex; flex-wrap: wrap; gap: var(--gap); align-items: center; }
+    label { display: grid; gap: 4px; }
+    code { word-break: break-all; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>tpt-text</h1>
+    <p>Pick a font file, type text, and see the layout. The digest is the same on every platform.</p>
+    <label>Font file <input id="font" type="file" accept=".ttf,.otf"></label>
+    <label>Text <textarea id="text" rows="4">Deterministic layout: the same glyphs, the same positions.</textarea></label>
+    <div class="row">
+      <label>Size (px) <input id="size" type="number" value="24" min="4" max="200"></label>
+      <label>Width (px) <input id="width" type="number" value="480" min="40" max="2000"></label>
+      <label>Click x <input id="x" type="number" value="20"></label>
+      <label>Click y <input id="y" type="number" value="20"></label>
+    </div>
+    <div id="preview" aria-live="polite">Choose a font to begin.</div>
+    <p>Digest: <code id="digest">-</code></p>
+    <p>Caret for the click: byte <code id="caret">-</code></p>
+  </main>
+  <script type="module">
+    // Build the module first: wasm-pack build crates/tpt-text-wasm --target web
+    import init, { layout_svg, layout_digest, caret_at } from './pkg/tpt_text_wasm.js';
+
+    const $ = (id) => document.getElementById(id);
+    let font = null;
+    let ready = init();
+
+    async function render() {
+      await ready;
+      if (!font) return;
+      const text = $('text').value;
+      const size = Number($('size').value);
+      const width = Number($('width').value);
+      $('preview').innerHTML = layout_svg(font, text, size, width);
+      $('digest').textContent = layout_digest(font, text, size, width);
+      $('caret').textContent = caret_at(font, text, size, width, Number($('x').value), Number($('y').value));
+    }
+
+    $('font').addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (file) font = new Uint8Array(await file.arrayBuffer());
+      render();
+    });
+    for (const id of ['text', 'size', 'width', 'x', 'y']) {
+      $(id).addEventListener('input', render);
+    }
+  </script>
+</body>
+</html>

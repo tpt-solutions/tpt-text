@@ -12,7 +12,8 @@
 //! Phases 1 to 3 are implemented: fixed-point metrics, font registry,
 //! Bidi-aware itemization and shaping, caller-configured fallback, UAX #14
 //! breaking with hyphenation hooks, tab stops, alignment, justification,
-//! truncation, and hit-testing. Phase 4 integrations are pending.
+//! truncation, and hit-testing. Phase 4 (ecosystem integration) was dropped.
+//! Correctness fixes from Phase 5 are in progress; see `TODO.md`.
 //!
 //! # Quick start
 //!
@@ -56,8 +57,10 @@ pub mod fx;
 pub mod hit_test;
 pub mod hyphenate;
 pub mod layout;
+pub mod outline;
 pub mod shape;
 pub mod style;
+pub mod svg;
 #[cfg(feature = "fontdb")]
 pub mod system;
 
@@ -68,10 +71,12 @@ pub use font::{FontError, FontFace, FontProvider, FontQuery, FontRegistry};
 pub use fx::Fx;
 pub use hyphenate::Hyphenator;
 pub use layout::{
-    layout_paragraph, layout_paragraph_with, Align, LayoutError, LayoutLine, LayoutOptions,
-    ParagraphLayout,
+    explain_line_breaks, layout_paragraph, layout_paragraph_with, layout_text, Align, Document,
+    DocumentLayout, LayoutError, LayoutLine, LayoutOptions, LineBreakReason, MissingGlyph,
+    ParagraphLayout, PlacedParagraph,
 };
-pub use shape::{Direction, ShapedGlyph, ShapedRun};
-pub use style::{ColorId, FontFeature, StyleSpan, TextStyle};
+pub use outline::PathSegment;
+pub use shape::{Direction, ShapeCache, ShapedGlyph, ShapedRun};
+pub use style::{ColorId, FontFeature, FontVariation, StyleSpan, TextStyle};
 pub use unicode_bidi::Level;
 pub use unicode_script::Script;

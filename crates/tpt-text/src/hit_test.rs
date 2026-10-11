@@ -50,40 +50,58 @@ struct Cell {
 }
 
 /// Glyph extents in visual order, including alignment offset.
+///
+/// Hyphen and ellipsis marks are left out: their cluster is the byte where the
+/// line ends, which is not a position inside this line.
 fn cells(line: &LayoutLine) -> Vec<Cell> {
     let mut out = Vec::new();
     let mut x = line.x_offset;
+    let end = line.text_range.end;
     for run in &line.runs {
         let rtl = run.direction == Direction::RightToLeft;
         for g in &run.glyphs {
             let x1 = x + g.x_advance;
-            out.push(Cell {
-                cluster: g.cluster_index,
-                rtl,
-                x0: x,
-                x1,
-            });
+            // A mark still takes up space, so the pen moves past it.
+            if g.cluster_index < end {
+                out.push(Cell {
+                    cluster: g.cluster_index,
+                    rtl,
+                    x0: x,
+                    x1,
+                });
+            }
             x = x1;
         }
     }
     out
 }
 
-/// Byte index just after the character starting at `byte`.
-fn char_end(text: &str, byte: usize) -> usize {
-    text.get(byte..)
-        .and_then(|s| s.chars().next())
-        .map_or(byte, |c| byte + c.len_utf8())
+/// Sorted, unique cluster starts of every glyph, followed by the text length.
+fn cluster_starts(layout: &ParagraphLayout) -> Vec<usize> {
+    let mut starts: Vec<usize> = layout
+        .lines
+        .iter()
+        .flat_map(|l| l.runs.iter())
+        .flat_map(|r| r.glyphs.iter().map(|g| g.cluster_index))
+        .collect();
+    starts.push(layout.text.len());
+    starts.sort_unstable();
+    starts.dedup();
+    starts
 }
 
 /// Byte index a caret at the cell's left (`left = true`) or right edge maps to.
-fn edge_byte(cell: &Cell, text: &str, left: bool) -> usize {
+///
+/// The right edge of a cell is the end of its whole cluster, so a caret never
+/// lands between a base character and the marks that belong to it.
+fn edge_byte(cell: &Cell, starts: &[usize], left: bool) -> usize {
     // Logical start sits on the left edge for LTR and the right edge for RTL.
     let at_start = left != cell.rtl;
     if at_start {
         cell.cluster
     } else {
-        char_end(text, cell.cluster)
+        let next = starts.partition_point(|&s| s <= cell.cluster);
+        starts.get(next).copied().unwrap_or(cell.cluster)
     }
 }
 
@@ -112,13 +130,14 @@ pub fn hit_test(layout: &ParagraphLayout, x: Fx, y: Fx) -> Option<Caret> {
         .position(|l| y < l.top + l.height)
         .unwrap_or(layout.lines.len() - 1);
     let line = &layout.lines[line_index];
+    let starts = cluster_starts(layout);
 
     let mut best: Option<(Fx, Caret)> = None;
     for cell in cells(line) {
         for (left, cx) in [(true, cell.x0), (false, cell.x1)] {
             let distance = if x >= cx { x - cx } else { cx - x };
             let caret = Caret {
-                byte_index: edge_byte(&cell, &layout.text, left),
+                byte_index: edge_byte(&cell, &starts, left),
                 x: cx,
                 y: line.top,
                 height: line.height,

@@ -54,6 +54,10 @@ const POOL: &[char] = &[
     '\u{1F600}',
     '\u{00AD}',
     '\u{2028}',
+    '\r',
+    '\u{0B}',
+    '\u{0C}',
+    '\u{85}',
 ];
 
 /// Builds a random string of up to `max_chars` characters from [`POOL`].

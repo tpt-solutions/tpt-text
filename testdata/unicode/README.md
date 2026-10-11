@@ -5,7 +5,7 @@ downloaded from https://www.unicode.org/Public/UCD/latest/ucd/.
 
 | File | Used by |
 | --- | --- |
-| `LineBreakTest.txt` | UAX #14 conformance (not yet wired up) |
+| `LineBreakTest.txt` | UAX #14 conformance (`tpt-text-linebreak`, `crates/tpt-text/tests/conformance.rs`) |
 | `BidiTest.txt` | UAX #9 conformance (Phase 2) |
 | `BidiCharacterTest.txt` | UAX #9 conformance (Phase 2) |
 

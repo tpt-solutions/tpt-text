@@ -8,3 +8,9 @@ Thumbs.db
 /crates/tpt-text-fuzz/target
 /crates/tpt-text-fuzz/corpus
 /crates/tpt-text-fuzz/artifacts
+/crates/tpt-text-fuzz/fuzz/target
+/crates/tpt-text-fuzz/fuzz/corpus
+/crates/tpt-text-fuzz/fuzz/artifacts
+/templates/tiny-skia/target
+/crates/tpt-text-wasm/pkg
+/crates/tpt-text-wasm/node_modules

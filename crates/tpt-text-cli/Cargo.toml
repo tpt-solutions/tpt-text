@@ -1,0 +1,21 @@
+[package]
+name = "tpt-text-cli"
+description = "Command-line front end for tpt-text: lay out text from a font file as JSON, SVG or a digest"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+publish = false
+
+[[bin]]
+name = "tpt-text-cli"
+path = "src/main.rs"
+
+[dependencies]
+tpt-text = { path = "../tpt-text", features = ["serde"] }
+serde_json = "1.0.152"
+
+[lints]
+workspace = true
