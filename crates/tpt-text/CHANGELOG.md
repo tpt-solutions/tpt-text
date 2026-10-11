@@ -7,6 +7,15 @@ and this crate follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ## [Unreleased]
 
+## [0.1.0](https://github.com/tpt-solutions/tpt-text/releases/tag/tpt-text-v0.1.0) - 2026-10-11
+
+### Other
+
+- Restructure tpt-text workspace and add CI, tooling and docs
+- Restructure tpt-text into split crates and add Unicode data tooling
+- Add determinism, conformance, fuzz and docs for tpt-text
+- Implement tpt-text phases 0 to 3
+
 ### Added
 
 - Deterministic fixed-point layout pipeline with `Fx` values and integer arithmetic.

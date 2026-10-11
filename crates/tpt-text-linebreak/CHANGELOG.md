@@ -7,6 +7,13 @@ and this crate follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ## [Unreleased]
 
+## [0.1.0](https://github.com/tpt-solutions/tpt-text/releases/tag/tpt-text-linebreak-v0.1.0) - 2026-10-11
+
+### Other
+
+- Restructure tpt-text workspace and add CI, tooling and docs
+- Restructure tpt-text into split crates and add Unicode data tooling
+
 ### Added
 
 - `BreakClass` enum covering all UAX #14 classes, including the Unicode 16+
