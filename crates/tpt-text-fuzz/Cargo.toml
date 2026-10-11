@@ -1,0 +1,15 @@
+[package]
+name = "tpt-text-fuzz"
+description = "Randomised robustness tests for tpt-text (no panics, no hangs)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[dependencies]
+tpt-text = { path = "../tpt-text" }
+
+[lints]
+workspace = true
