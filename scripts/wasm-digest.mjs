@@ -1,10 +1,10 @@
-// Runs the tpt-wasm-check layouts under WebAssembly and writes their digests.
+// Runs the tpt-text-wasm-check layouts under WebAssembly and writes their digests.
 //
 // Usage (from the repository root, after building the wasm target):
-//   node scripts/wasm-digest.mjs target/wasm32-unknown-unknown/release/tpt_wasm_check.wasm \
-//        crates/tpt-wasm-check/golden/digests.json
+//   node scripts/wasm-digest.mjs target/wasm32-unknown-unknown/release/tpt_text_wasm_check.wasm \
+//        crates/tpt-text-wasm-check/golden/digests.json
 //
-// Case names must match CASES in crates/tpt-wasm-check/src/lib.rs, in order.
+// Case names must match CASES in crates/tpt-text-wasm-check/src/lib.rs, in order.
 import { readFileSync, writeFileSync } from 'node:fs';
 
 const [wasmPath, outPath] = process.argv.slice(2);

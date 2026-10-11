@@ -32,12 +32,16 @@ pub fn check<T: Serialize>(path: impl AsRef<Path>, value: &T) {
         return;
     }
 
-    let expected = fs::read_to_string(path).unwrap_or_else(|_| {
-        panic!(
-            "missing golden file {}; run with {UPDATE_ENV}=1 to create it",
-            path.display()
-        )
-    });
+    // Git on Windows may check golden files out with CRLF (core.autocrlf), so
+    // compare with line endings normalised to LF.
+    let expected = fs::read_to_string(path)
+        .unwrap_or_else(|_| {
+            panic!(
+                "missing golden file {}; run with {UPDATE_ENV}=1 to create it",
+                path.display()
+            )
+        })
+        .replace("\r\n", "\n");
     assert!(
         expected == actual,
         "golden mismatch for {}; run with {UPDATE_ENV}=1 to accept the change",

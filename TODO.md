@@ -3,7 +3,7 @@
 Decisions: no_std+alloc core (`std` feature for fontdb), fixed-point `Fx` public units, rustybuzz only, spans over `&str`, trait-only hyphenation, caller-configured fallback, edition 2021 / MSRV 1.75.
 
 ## Phase 0: Setup
-- [x] Cargo workspace: `tpt-text`, `tpt-text-fuzz`, `tpt-golden`
+- [x] Cargo workspace: `tpt-text`, `tpt-text-fuzz`, `tpt-text-golden`
 - [x] Pin toolchain (stable, MSRV 1.75), rustfmt/clippy config (stable pinned; build and tests verified on 1.75.0)
 - [x] Features: `std` (default), `fontdb` (`tpt_text::system::SystemFonts`), `serde` (golden output)
 - [x] Verify no_std status of rustybuzz, ttf-parser, unicode-bidi, unicode-linebreak, unicode-script; record findings (`docs/dependency-audit.md`)
@@ -47,11 +47,11 @@ Decisions: no_std+alloc core (`std` feature for fontdb), fixed-point `Fx` public
 - [x] WASM build check and example consumer (`examples/layout_demo.rs`)
 
 ## Testing and quality
-- [x] `tpt-golden` helper: JSON golden files with update mode
+- [x] `tpt-text-golden` helper: JSON golden files with update mode
 - [x] Golden scenarios: Arabic with numbers, emoji with ZWJ/ZWNJ, long paragraph (golden files; also asserted in `tests/scenarios.rs`)
 - [x] Unicode Bidi conformance tests (BidiCharacterTest and BidiTest, levels and reorder: 0 failures; lines containing paragraph separators are skipped)
 - [ ] Unicode LineBreak conformance tests (LineBreakTest runs; 1117 known failures because `unicode-linebreak` 0.1.5 implements Unicode 15, see `testdata/unicode/known-failures/`; blocked on a newer crate)
-- [x] Cross-platform determinism check (native Windows digests equal digests from the WASM build under Node; `crates/tpt-wasm-check`, `scripts/wasm-digest.mjs`)
+- [x] Cross-platform determinism check (native Windows digests equal digests from the WASM build under Node; `crates/tpt-text-wasm-check`, `scripts/wasm-digest.mjs`)
 - [x] `tpt-text-fuzz`: random strings, font subsets, options, widths, hit-tests; no panics or hangs (`TPT_FUZZ_ITERATIONS` for soak runs)
 - [x] Benchmarks for shaping and layout of large paragraphs (`cargo bench -p tpt-text`)
 - [x] Docs and rustdoc examples (quick start and doctests in `lib.rs`)

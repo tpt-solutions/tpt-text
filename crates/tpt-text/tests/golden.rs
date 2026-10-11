@@ -6,8 +6,8 @@
 use std::path::PathBuf;
 
 use serde::Serialize;
-use tpt_golden::check;
 use tpt_text::{layout_paragraph, FontRegistry, Fx, ParagraphLayout, TextStyle};
+use tpt_text_golden::check;
 
 #[derive(Serialize)]
 struct GoldenLine {

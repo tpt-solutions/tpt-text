@@ -7,8 +7,8 @@ use alloc::vec::Vec;
 use core::fmt;
 use core::ops::Range;
 
+use tpt_text_linebreak::{linebreaks, BreakOpportunity};
 use unicode_bidi::{BidiInfo, Level};
-use unicode_linebreak::{linebreaks, BreakOpportunity};
 use unicode_script::Script;
 
 use crate::fallback::FallbackResolver;

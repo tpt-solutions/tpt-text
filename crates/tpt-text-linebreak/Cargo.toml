@@ -1,0 +1,16 @@
+[package]
+name = "tpt-text-linebreak"
+description = "UAX #14 line break classes and opportunities, generated from Unicode LineBreak.txt"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+readme = "README.md"
+authors.workspace = true
+keywords = ["unicode", "uax14", "line-break", "text", "no-std"]
+categories = ["text-processing", "internationalization", "no-std"]
+
+
+[lints]
+workspace = true

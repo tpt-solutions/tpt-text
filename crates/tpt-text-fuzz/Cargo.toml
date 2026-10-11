@@ -6,6 +6,10 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
+readme = "README.md"
+authors.workspace = true
+keywords = ["fuzzing", "robustness", "text", "testing", "prng"]
+categories = ["development-tools::testing"]
 publish = false
 
 [dependencies]

@@ -1,11 +1,15 @@
 [package]
-name = "tpt-golden"
+name = "tpt-text-golden"
 description = "JSON golden-file helper for tpt-text (update mode via TPT_GOLDEN_UPDATE=1)"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
+readme = "README.md"
+authors.workspace = true
+keywords = ["golden", "snapshot", "json", "testing", "regression"]
+categories = ["development-tools::testing"]
 
 [dependencies]
 serde = { version = "1.0.229", features = ["derive"] }

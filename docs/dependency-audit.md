@@ -8,7 +8,7 @@ Checked with `cargo build -p tpt-text --no-default-features` for
 | rustybuzz | 0.20.1 | Passes with `default-features = false` |
 | ttf-parser (via rustybuzz) | re-exported | Passes |
 | unicode-bidi | 0.3.18 | Passes |
-| unicode-linebreak | 0.1.5 | Passes |
+| tpt-text-linebreak (in-tree) | 0.1.0 | Not yet checked |
 | unicode-script | 0.5.8 | Passes |
 | spin | 0.12.3 | Passes (`rwlock` feature) |
 

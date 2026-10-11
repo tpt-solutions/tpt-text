@@ -1,6 +1,6 @@
 //! tpt-text: deterministic text shaping and layout.
 //!
-//! The crate orchestrates pure-Rust primitives (rustybuzz, unicode-linebreak,
+//! The crate orchestrates pure-Rust primitives (rustybuzz, tpt-text-linebreak,
 //! unicode-script) behind a fixed-point, integer-only pipeline so the same
 //! input produces byte-identical output on every platform.
 //!

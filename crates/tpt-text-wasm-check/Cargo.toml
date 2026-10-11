@@ -1,11 +1,15 @@
 [package]
-name = "tpt-wasm-check"
+name = "tpt-text-wasm-check"
 description = "Cross-platform determinism check: the same layouts must hash identically natively and under WebAssembly"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
+readme = "README.md"
+authors.workspace = true
+keywords = ["determinism", "wasm", "webassembly", "digest", "testing"]
+categories = ["development-tools::testing", "wasm"]
 publish = false
 
 [lib]

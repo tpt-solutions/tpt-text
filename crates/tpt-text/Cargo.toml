@@ -6,6 +6,10 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
+readme = "README.md"
+authors.workspace = true
+keywords = ["text", "shaping", "layout", "bidi", "deterministic"]
+categories = ["text-processing", "internationalization", "rendering", "no-std", "wasm"]
 
 [features]
 default = ["std"]
@@ -15,7 +19,7 @@ serde = ["dep:serde"]
 
 [dependencies]
 rustybuzz = { version = "0.20.1", default-features = false }
-unicode-linebreak = { version = "0.1.5", default-features = false }
+tpt-text-linebreak = { version = "0.1.0", path = "../tpt-text-linebreak" }
 unicode-bidi = { version = "0.3.18", default-features = false, features = ["hardcoded-data"] }
 unicode-script = { version = "0.5.8", default-features = false }
 spin = { version = "0.12.3", default-features = false, features = ["rwlock"] }
@@ -26,7 +30,7 @@ serde = { version = "1.0.229", optional = true, default-features = false, featur
 workspace = true
 
 [dev-dependencies]
-tpt-golden = { path = "../tpt-golden" }
+tpt-text-golden = { path = "../tpt-text-golden" }
 serde = { version = "1.0.229", features = ["derive"] }
 
 [[bench]]

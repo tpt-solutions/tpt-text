@@ -1,0 +1,16 @@
+[package]
+name = "tpt-text-linebreak-gen"
+description = "Generates tpt-text-linebreak's class table from a Unicode LineBreak.txt"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+readme = "README.md"
+authors.workspace = true
+keywords = ["unicode", "ucd", "codegen", "generator", "line-break"]
+categories = ["development-tools::build-utils", "text-processing"]
+publish = false
+
+[lints]
+workspace = true

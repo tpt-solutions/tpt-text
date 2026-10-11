@@ -1,11 +1,9 @@
 //! Unicode conformance: UAX #14 (line breaks) and UAX #9 (Bidi) against the
-//! official test files in `testdata/unicode`.
+//! official test files in `testdata/unicode` (Unicode 18.0.0).
 //!
-//! The vendored files are Unicode 18.0.0. `unicode-linebreak` 0.1.5 implements
-//! Unicode 15.0.0, so some UAX #14 cases fail for reasons that are outside
-//! this crate. Known failures are recorded per line in
-//! `testdata/unicode/known-failures/`. The test fails on any failure that is
-//! not in that list, so regressions still show. Regenerate the lists with
+//! UAX #14 cases run against `tpt-text-linebreak`, which must pass them all. UAX #9
+//! failures are recorded per line in `testdata/unicode/known-failures/` and the
+//! test fails on any failure not in that list. Regenerate the lists with
 //! `TPT_CONFORMANCE_UPDATE=1 cargo test -p tpt-text --test conformance`.
 
 #![allow(clippy::unwrap_used)]
@@ -14,8 +12,8 @@ mod support;
 
 use support::{check_against_known, data};
 
+use tpt_text_linebreak::{linebreaks, BreakOpportunity};
 use unicode_bidi::{BidiInfo, Level};
-use unicode_linebreak::{linebreaks, BreakOpportunity};
 
 #[test]
 fn uax14_line_break_cases() {

@@ -1,14 +1,14 @@
 //! Native digests must equal the digests recorded from the WebAssembly build.
 //!
 //! Regenerate the recorded file with:
-//!   cargo build -p tpt-wasm-check --target wasm32-unknown-unknown --release
-//!   node scripts/wasm-digest.mjs target/wasm32-unknown-unknown/release/tpt_wasm_check.wasm crates/tpt-wasm-check/golden/digests.json
+//!   cargo build -p tpt-text-wasm-check --target wasm32-unknown-unknown --release
+//!   node scripts/wasm-digest.mjs target/wasm32-unknown-unknown/release/tpt_text_wasm_check.wasm crates/tpt-text-wasm-check/golden/digests.json
 
 #![allow(clippy::unwrap_used)]
 
 use std::collections::BTreeMap;
 
-use tpt_wasm_check::{digest_case, CASES};
+use tpt_text_wasm_check::{digest_case, CASES};
 
 const LATIN: &[u8] = include_bytes!("../../tpt-text/tests/fonts/NotoSans-Regular.ttf");
 const ARABIC: &[u8] = include_bytes!("../../tpt-text/tests/fonts/NotoSansArabic-Regular.ttf");
