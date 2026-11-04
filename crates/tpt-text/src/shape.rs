@@ -97,14 +97,12 @@ pub(crate) fn shape_run(
             value: v.value.to_f32(),
         })
         .collect();
-    let variation_face;
     let face = if variations.is_empty() {
         font.hb_face()
     } else {
-        variation_face = font.hb_face_with_variations(&variations);
-        &variation_face
+        font.hb_face_with_variations(&variations)
     };
-    let output = rustybuzz::shape(face, &features, buffer);
+    let output = rustybuzz::shape(&face, &features, buffer);
 
     let upem = i64::from(font.units_per_em());
     let size = i64::from(style.size.to_raw());
