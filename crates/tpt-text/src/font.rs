@@ -27,31 +27,13 @@ impl fmt::Display for FontError {
 #[cfg(feature = "std")]
 impl std::error::Error for FontError {}
 
-/// Both parsers for one face, borrowing from the face's bytes.
-pub(crate) struct Tables<'a> {
-    /// The parser used for metrics and character maps.
-    pub(crate) ttf: ttf_parser::Face<'a>,
-    /// The shaper's view of the same bytes.
-    pub(crate) hb: rustybuzz::Face<'a>,
-}
-
-self_cell::self_cell!(
-    /// Font bytes owned together with the parsers that borrow them, so each
-    /// face is parsed once rather than on every lookup.
-    struct FontBytes {
-        owner: Vec<u8>,
-
-        #[covariant]
-        dependent: Tables,
-    }
-);
-
 /// A parsed font face together with the bytes that back it.
 ///
-/// Shaping borrows the bytes through rustybuzz, so the face owns them and is
-/// shared through `Arc<FontFace>`.
+/// The face owns its bytes. Parsers borrow them on demand, so no self-referential
+/// storage is needed. Shaping is cached by run in `shape.rs`, not per face.
+/// Faces are shared through `Arc<FontFace>`.
 pub struct FontFace {
-    bytes: FontBytes,
+    data: Vec<u8>,
     index: u32,
     family: String,
     weight: u16,
@@ -88,15 +70,11 @@ impl FontFace {
         weight: u16,
         italic: bool,
     ) -> Result<FontFace, FontError> {
-        let bytes = FontBytes::try_new(data, |owner| {
-            let ttf =
-                ttf_parser::Face::parse(owner, index).map_err(|_| FontError::InvalidFontData)?;
-            // Check that rustybuzz accepts the bytes too, so later lookups cannot fail.
-            let hb = rustybuzz::Face::from_slice(owner, index).ok_or(FontError::InvalidFontData)?;
-            Ok(Tables { ttf, hb })
-        })?;
         let (units_per_em, ascender, descender, line_gap) = {
-            let ttf = &bytes.borrow_dependent().ttf;
+            let ttf =
+                ttf_parser::Face::parse(&data, index).map_err(|_| FontError::InvalidFontData)?;
+            // Check that rustybuzz accepts the bytes too, so later lookups cannot fail.
+            rustybuzz::Face::from_slice(&data, index).ok_or(FontError::InvalidFontData)?;
             if ttf.units_per_em() == 0 {
                 return Err(FontError::InvalidFontData);
             }
@@ -108,7 +86,7 @@ impl FontFace {
             )
         };
         Ok(FontFace {
-            bytes,
+            data,
             index,
             family: family.into(),
             weight,
@@ -177,7 +155,7 @@ impl FontFace {
 
     /// Raw font bytes.
     pub fn data(&self) -> &[u8] {
-        self.bytes.borrow_owner()
+        &self.data
     }
 
     /// Returns `true` if the face has a glyph for `c`.
@@ -190,24 +168,22 @@ impl FontFace {
         self.parsed().glyph_index(c).map(|g| u32::from(g.0))
     }
 
-    /// The cached metrics and character-map parser.
-    pub(crate) fn parsed(&self) -> &ttf_parser::Face<'_> {
-        &self.bytes.borrow_dependent().ttf
+    /// Metrics and character-map parser over this face's bytes.
+    pub(crate) fn parsed(&self) -> ttf_parser::Face<'_> {
+        ttf_parser::Face::parse(&self.data, self.index).expect("validated in from_bytes")
     }
 
-    /// The cached shaper for this face.
-    pub(crate) fn hb_face(&self) -> &rustybuzz::Face<'_> {
-        &self.bytes.borrow_dependent().hb
+    /// Shaper over this face's bytes.
+    pub(crate) fn hb_face(&self) -> rustybuzz::Face<'_> {
+        rustybuzz::Face::from_slice(&self.data, self.index).expect("validated in from_bytes")
     }
 
-    /// A fresh shaper for this face, for applying variation settings. Shaping
-    /// with variations needs a mutable face, so it cannot use the cached one.
+    /// Shaper with variation settings applied.
     pub(crate) fn hb_face_with_variations(
         &self,
         variations: &[rustybuzz::Variation],
     ) -> rustybuzz::Face<'_> {
-        let mut face =
-            rustybuzz::Face::from_slice(self.data(), self.index).expect("validated in from_bytes");
+        let mut face = self.hb_face();
         face.set_variations(variations);
         face
     }
